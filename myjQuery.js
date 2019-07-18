@@ -129,11 +129,87 @@
     });
     //返回实例对象,实现jq中的链式编程
     return this;
-  };
+  }
 
+  //封装生成新的元素html
+  inIt.prototype.html = function(html) {
+    //变量是满足html语法的格式的字符串
+    if(html === undefined) {
+      return this[0].innerHTML  
+    }else {
+      return this.each(function(i,e) {
+        e.innerHTML = html;
+      })
+    }
+  }
 
+  //封装操作元素的文本内容
+  inIt.prototype.text = function(text) {
+    if(text === undefined) {
+      return this[0].innerText;
+    }else {
+      return this.each(function(i,e) {
+        e.innerText = text;
+      })
+    }
+  }
 
+  //封装可以获取和设置元素的属性(非开关)
+  inIt.prototype.attr = function(attr,value) {
+    if(value === undefined) {
+      //getAttribute()方法通过名称获取属性的值
+      return this[0].getAttribute(attr);
+    }else {
+      return this.each(function(i,e) {
+        e.setAttribute(attr,value);
+      })
+    }
+  }
 
+  //封装删除元素的属性方法
+  inIt.prototype.removeAttr = function(attr) {
+    return this.each(function(i,e) {
+      e.removeAttribute(attr);
+    })
+  }
+
+  //封装可以获取和设置元素的属性(开关)
+  inIt.prototype.prop = function(property,value) {
+    //开关属性的返回值是布尔类型
+    if(value === undefined) {
+      return this[0][property];
+    } else {
+      return this.each(function(i,e) {
+        e[property] = Boolean(value);
+      })
+    }
+  }
+
+  //封装注册事件
+  inIt.prototype.on = function(type,selector,fn) {
+    //如果只传了两个参数,代表是普通的注册事件
+    if(fn === undefined) {
+      //把selector赋值给fn
+      fn = selector;
+      this.each(function(i,e) {
+        e.addEventListener(type,fn)
+      })
+    }else { 
+      //代表传了三个参数,事件委托注册事件
+      this.each(function(i,e) {
+        e.addEventListener(type,function(ev) {
+          //事件触发的元素必须是父元素的后代元素,把伪数组转成数组
+          let dom = Array.from(e.querySelectorAll(selector)) ;
+         //判断事件触发的元素是否在数组里面
+         if(dom.indexOf(ev.target) != -1) {
+           //代表事件元素是在范围内的
+           //把函数的this改成指向后代选择器,利用call
+          fn.call(ev.target,ev)
+         }         
+        })
+      })
+    }
+  }
 
 
 
